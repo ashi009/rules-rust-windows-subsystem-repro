@@ -1,4 +1,34 @@
 load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+cargo_build_script(
+    name = "stamped_build",
+    srcs = ["build.rs"],
+    build_script_env = {"TARRO_DESKTOP_FLEET_VERSION": "0.0.1.0"},
+)
+
+cargo_build_script(
+    name = "unstamped_build",
+    srcs = ["build.rs"],
+)
+
+rust_binary(
+    name = "stamped",
+    srcs = ["policy.rs"],
+    deps = [":stamped_build"],
+)
+
+rust_binary(
+    name = "unstamped",
+    srcs = ["policy.rs"],
+    deps = [":unstamped_build"],
+)
+
+cc_binary(
+    name = "native_console",
+    srcs = ["main.cc"],
+)
 
 rust_binary(
     name = "gui",

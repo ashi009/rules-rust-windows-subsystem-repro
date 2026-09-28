@@ -1,0 +1,27 @@
+From d3620fb9129743cde11c98f8e47134eb390a543b Mon Sep 17 00:00:00 2001
+From: Xiaoyi <ashi009@users.noreply.github.com>
+Date: Mon, 28 Sep 2026 15:23:35 -0700
+Subject: [PATCH] rust: let rustc select the Windows subsystem
+
+The C++ console-subsystem default overrides the Rust crate attribute. Disable the optional linker_subsystem_flag feature so rustc controls both the subsystem and its CRT entry point.
+
+Requires rules_cc to enable linker_subsystem_flag by default without implying it from link actions.
+
+For bazelbuild/rules_rust#4296
+---
+ rust/private/utils.bzl | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/rust/private/utils.bzl b/rust/private/utils.bzl
+index b3f5b84..8610226 100644
+--- a/rust/private/utils.bzl
++++ b/rust/private/utils.bzl
+@@ -31,6 +31,8 @@ load(
+ )
+ 
+ UNSUPPORTED_FEATURES = [
++    # rustc selects the Windows subsystem and its matching CRT entry point.
++    "linker_subsystem_flag",
+     "thin_lto",
+     "module_maps",
+     "use_header_modules",

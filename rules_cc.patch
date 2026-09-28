@@ -1,0 +1,48 @@
+From 5a4ad4ff2017011fe559e1f0f13bed667f2dface Mon Sep 17 00:00:00 2001
+From: Xiaoyi <ashi009@users.noreply.github.com>
+Date: Mon, 28 Sep 2026 15:23:35 -0700
+Subject: [PATCH] windows: make the default subsystem feature optional
+
+Implying linker_subsystem_flag from every link action prevents other languages from disabling the C++ console default. Enable the feature by default instead, preserving C++ behavior while allowing Rust to select its own subsystem and CRT entry point.
+
+For bazelbuild/rules_rust#4296
+---
+ cc/private/toolchain/windows_cc_toolchain_config.bzl | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/cc/private/toolchain/windows_cc_toolchain_config.bzl b/cc/private/toolchain/windows_cc_toolchain_config.bzl
+index 295f481..8437fb4 100644
+--- a/cc/private/toolchain/windows_cc_toolchain_config.bzl
++++ b/cc/private/toolchain/windows_cc_toolchain_config.bzl
+@@ -155,7 +155,6 @@ def _impl(ctx):
+                 "output_execpath_flags",
+                 "input_param_flags",
+                 "user_link_flags",
+-                "linker_subsystem_flag",
+                 "linker_param_file",
+                 "msvc_env",
+                 "no_stripping",
+@@ -250,7 +249,6 @@ def _impl(ctx):
+                 "output_execpath_flags",
+                 "input_param_flags",
+                 "user_link_flags",
+-                "linker_subsystem_flag",
+                 "linker_param_file",
+                 "msvc_env",
+                 "no_stripping",
+@@ -267,7 +265,6 @@ def _impl(ctx):
+                 "output_execpath_flags",
+                 "input_param_flags",
+                 "user_link_flags",
+-                "linker_subsystem_flag",
+                 "linker_param_file",
+                 "msvc_env",
+                 "no_stripping",
+@@ -1104,6 +1101,7 @@ def _impl(ctx):
+ 
+         linker_subsystem_flag_feature = feature(
+             name = "linker_subsystem_flag",
++            enabled = True,
+             flag_sets = [
+                 flag_set(
+                     actions = all_link_actions,
