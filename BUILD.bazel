@@ -15,12 +15,14 @@ cargo_build_script(
 
 rust_binary(
     name = "stamped",
+    features = ["-linker_subsystem_flag"],
     srcs = ["policy.rs"],
     deps = [":stamped_build"],
 )
 
 rust_binary(
     name = "unstamped",
+    features = ["-linker_subsystem_flag"],
     srcs = ["policy.rs"],
     deps = [":unstamped_build"],
 )
