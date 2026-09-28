@@ -55,3 +55,4 @@ if ($failedExit -eq 0 -or ($failure -join "`n") -notmatch 'WinMain') {
 
 Write-Host "RESULT: rustc GUI=2; Bazel GUI=$guiSubsystem; raw subsystem override fails with WinMain in both; explicit entry point succeeds in both."
 if ($guiSubsystem -ne 3) { throw 'The suspected upstream console override did not reproduce' }
+$global:LASTEXITCODE = 0
