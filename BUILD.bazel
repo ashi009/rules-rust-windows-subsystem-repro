@@ -1,0 +1,21 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+rust_binary(
+    name = "gui",
+    srcs = ["main.rs"],
+)
+
+rust_binary(
+    name = "override_only",
+    srcs = ["plain.rs"],
+    rustc_flags = ["-Clink-arg=/SUBSYSTEM:WINDOWS"],
+)
+
+rust_binary(
+    name = "override_with_entry",
+    srcs = ["plain.rs"],
+    rustc_flags = [
+        "-Clink-arg=/SUBSYSTEM:WINDOWS",
+        "-Clink-arg=/ENTRY:mainCRTStartup",
+    ],
+)

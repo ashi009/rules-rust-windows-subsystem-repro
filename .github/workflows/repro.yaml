@@ -1,0 +1,35 @@
+name: Windows subsystem repro
+on: [push]
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        rules-rust: ["0.70.0", "main-83d85cce"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select pristine upstream main
+        if: matrix.rules-rust == 'main-83d85cce'
+        shell: pwsh
+        run: |
+          @'
+          archive_override(
+              module_name = "rules_rust",
+              urls = ["https://github.com/bazelbuild/rules_rust/archive/83d85cce0ab56b42a7466d8b34f4e52949d2d064.tar.gz"],
+              strip_prefix = "rules_rust-83d85cce0ab56b42a7466d8b34f4e52949d2d064",
+          )
+          '@ | Add-Content MODULE.bazel
+      - name: Install Bazelisk and Rust
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/bazelbuild/bazelisk/releases/download/v1.29.0/bazelisk-windows-amd64.exe -OutFile "$env:RUNNER_TEMP/bazel.exe"
+          $env:RUNNER_TEMP | Out-File -FilePath $env:GITHUB_PATH -Append
+          rustup toolchain install 1.98.0 --profile minimal
+          if ($LASTEXITCODE -ne 0) { throw 'rustup failed' }
+      - name: Reproduce
+        shell: pwsh
+        run: ./repro.ps1
