@@ -1,0 +1,11 @@
+[package]
+name = "subsystem-build-script-repro"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "shared.rs"
+
+[[bin]]
+name = "build_script_subsystem"
+path = "build_script_main.rs"

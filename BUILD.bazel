@@ -1,4 +1,5 @@
-load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
+load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 
 rust_binary(
     name = "gui",
@@ -39,4 +40,30 @@ rust_binary(
         ":windows_release": ["--codegen=link-arg=/SUBSYSTEM:WINDOWS"],
         "//conditions:default": [],
     }),
+)
+
+exports_files(["bin-link-args.patch"])
+
+cargo_build_script(
+    name = "profile_build_script",
+    srcs = ["build.rs"],
+    crate_root = "build.rs",
+)
+
+rust_library(
+    name = "shared_library",
+    srcs = ["shared.rs"],
+    deps = [":profile_build_script"],
+)
+
+rust_binary(
+    name = "build_script_subsystem",
+    srcs = ["build_script_main.rs"],
+    deps = [":profile_build_script", ":shared_library"],
+)
+
+rust_binary(
+    name = "library_consumer",
+    srcs = ["plain.rs"],
+    deps = [":shared_library"],
 )

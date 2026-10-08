@@ -78,3 +78,30 @@ foreach ($mode in @('fastbuild', 'dbg', 'opt')) {
         Write-Host "PASS: mode=$mode stamp=$stamp subsystem=$expected"
     }
 }
+
+foreach ($mode in @('fastbuild', 'dbg', 'opt')) {
+    foreach ($stamp in @('--stamp', '--nostamp')) {
+        Write-Host "`$ bazel build //:build_script_subsystem //:library_consumer -c $mode $stamp"
+        bazel --output_user_root=C:/b --ignore_all_rc_files build --enable_bzlmod //:build_script_subsystem //:library_consumer -c $mode $stamp --subcommands
+        Require-Success
+        $expected = if ($mode -eq 'opt') { 2 } else { 3 }
+        if ((Show-Subsystem bazel-bin/build_script_subsystem.exe) -ne $expected) {
+            throw "Wrong build-script subsystem for mode=$mode stamp=$stamp"
+        }
+        if ((Show-Subsystem bazel-bin/library_consumer.exe) -ne 3) {
+            throw "Build-script binary link flags leaked through library for mode=$mode stamp=$stamp"
+        }
+        Write-Host "PASS build.rs: mode=$mode stamp=$stamp subsystem=$expected; library consumer=3"
+    }
+}
+foreach ($profile in @('dev', 'release')) {
+    Write-Host "`$ cargo build --profile $profile"
+    cargo +1.98.0 build --profile $profile
+    Require-Success
+    $directory = if ($profile -eq 'dev') { 'debug' } else { 'release' }
+    $expected = if ($profile -eq 'dev') { 3 } else { 2 }
+    if ((Show-Subsystem "target/$directory/build_script_subsystem.exe") -ne $expected) {
+        throw "Wrong Cargo subsystem for profile=$profile"
+    }
+    Write-Host "PASS Cargo: profile=$profile subsystem=$expected"
+}
