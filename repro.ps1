@@ -78,3 +78,13 @@ foreach ($mode in @('fastbuild', 'dbg', 'opt')) {
         Write-Host "PASS: mode=$mode stamp=$stamp subsystem=$expected"
     }
 }
+
+Write-Host '$ bazel build //:profile_subsystem -c opt --platforms=//:macos_arm64 --nobuild'
+$failure = & bazel --output_user_root=C:/b --ignore_all_rc_files build --enable_bzlmod //:profile_subsystem -c opt --platforms=//:macos_arm64 --nobuild 2>&1
+$failedExit = $LASTEXITCODE
+$failure | ForEach-Object { Write-Host $_ }
+if ($failedExit -eq 0 -or ($failure -join "`n") -notmatch 'incompatible') {
+    throw 'Expected explicit macOS build to be rejected as incompatible'
+}
+Write-Host 'PASS: macOS target rejected by compatibility constraint before compilation'
+$global:LASTEXITCODE = 0

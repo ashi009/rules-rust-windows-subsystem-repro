@@ -27,16 +27,21 @@ rust_binary(
 )
 
 config_setting(
-    name = "windows_release",
-    constraint_values = ["@platforms//os:windows"],
+    name = "release",
     values = {"compilation_mode": "opt"},
 )
 
 rust_binary(
     name = "profile_subsystem",
     srcs = ["profile.rs"],
+    target_compatible_with = ["@platforms//os:windows"],
     rustc_flags = select({
-        ":windows_release": ["--codegen=link-arg=/SUBSYSTEM:WINDOWS"],
+        ":release": ["--codegen=link-arg=/SUBSYSTEM:WINDOWS"],
         "//conditions:default": [],
     }),
+)
+
+platform(
+    name = "macos_arm64",
+    constraint_values = ["@platforms//os:macos", "@platforms//cpu:arm64"],
 )
