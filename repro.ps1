@@ -55,4 +55,13 @@ if ($failedExit -eq 0 -or ($failure -join "`n") -notmatch 'WinMain') {
 
 Write-Host "RESULT: rustc GUI=2; Bazel GUI=$guiSubsystem; raw subsystem override fails with WinMain in both; explicit entry point succeeds in both."
 if ($guiSubsystem -ne 3) { throw 'The suspected upstream console override did not reproduce' }
+Write-Host '$ bazel build //:gui_target_override --stamp'
+bazel --output_user_root=C:/b --ignore_all_rc_files build --enable_bzlmod //:gui_target_override --stamp --subcommands
+Require-Success
+if ((Show-Subsystem bazel-bin/gui_target_override.exe) -ne 2) { throw 'Stamped target-local workaround is not GUI' }
+Write-Host '$ bazel build //:gui_target_override --nostamp'
+bazel --output_user_root=C:/b --ignore_all_rc_files build --enable_bzlmod //:gui_target_override --nostamp --subcommands
+Require-Success
+if ((Show-Subsystem bazel-bin/gui_target_override.exe) -ne 2) { throw 'Unstamped target-local workaround is not GUI' }
+Write-Host 'PASS: GUI attribute plus target subsystem override links as GUI with and without stamping; no explicit entry point or toolchain patches.'
 $global:LASTEXITCODE = 0

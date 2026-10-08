@@ -19,3 +19,9 @@ rust_binary(
         "-Clink-arg=/ENTRY:mainCRTStartup",
     ],
 )
+
+rust_binary(
+    name = "gui_target_override",
+    srcs = ["main.rs"],
+    rustc_flags = ["-Clink-arg=/SUBSYSTEM:WINDOWS"],
+)
