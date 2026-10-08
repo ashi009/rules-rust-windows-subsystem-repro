@@ -65,3 +65,16 @@ Require-Success
 if ((Show-Subsystem bazel-bin/gui_target_override.exe) -ne 2) { throw 'Unstamped target-local workaround is not GUI' }
 Write-Host 'PASS: GUI attribute plus target subsystem override links as GUI with and without stamping; no explicit entry point or toolchain patches.'
 $global:LASTEXITCODE = 0
+
+foreach ($mode in @('fastbuild', 'dbg', 'opt')) {
+    foreach ($stamp in @('--stamp', '--nostamp')) {
+        Write-Host "`$ bazel build //:profile_subsystem -c $mode $stamp"
+        bazel --output_user_root=C:/b --ignore_all_rc_files build --enable_bzlmod //:profile_subsystem -c $mode $stamp --subcommands
+        Require-Success
+        $expected = if ($mode -eq 'opt') { 2 } else { 3 }
+        if ((Show-Subsystem bazel-bin/profile_subsystem.exe) -ne $expected) {
+            throw "Wrong subsystem for mode=$mode stamp=$stamp"
+        }
+        Write-Host "PASS: mode=$mode stamp=$stamp subsystem=$expected"
+    }
+}

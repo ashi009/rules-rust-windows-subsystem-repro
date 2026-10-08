@@ -25,3 +25,18 @@ rust_binary(
     srcs = ["main.rs"],
     rustc_flags = ["-Clink-arg=/SUBSYSTEM:WINDOWS"],
 )
+
+config_setting(
+    name = "windows_release",
+    constraint_values = ["@platforms//os:windows"],
+    values = {"compilation_mode": "opt"},
+)
+
+rust_binary(
+    name = "profile_subsystem",
+    srcs = ["profile.rs"],
+    rustc_flags = select({
+        ":windows_release": ["--codegen=link-arg=/SUBSYSTEM:WINDOWS"],
+        "//conditions:default": [],
+    }),
+)
